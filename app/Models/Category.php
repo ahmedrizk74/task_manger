@@ -9,7 +9,7 @@ class Category extends Model
 {
     
     use HasFactory;
-        protected $guarded=['id']; //ده العكس انه ممنوع تحط فيها حاجه
+        protected $guarded=['id'];   
     public function tasks() {
     return $this->belongsToMany(Task::class);
 }

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Task extends Model
 {
-   protected $guarded=['id']; //ده العكس انه ممنوع تحط فيها حاج
+   protected $guarded=['id']; 
     use HasFactory;
     public function user(){
     return $this->belongsTo(User::class);

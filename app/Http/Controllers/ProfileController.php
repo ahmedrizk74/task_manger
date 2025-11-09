@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProfileRequest;
+use App\Http\Requests\UpdateProfileRequest;
+use App\Http\Requests\updateTaskRequest;
 use App\Models\Profile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -12,6 +14,15 @@ use function Laravel\Prompts\error;
 
 class ProfileController extends Controller
 {
+
+  protected function uploadImage($request)
+    {
+        if ($request->hasFile('image')) {
+            return $request->file('image')->store('profile_images', 'public');
+        }
+
+        return null;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -27,16 +38,12 @@ $profile    ], 200);    }
      */
     public function store(StoreProfileRequest $request)
     {
-        //
-   if (!Auth::check()) {
-            return response()->json(['message' => 'Unauthenticated'], 401);
-        }
+      
         $validated=$request->validated();
         $validated['user_id']=Auth::id();
 
-        if($request->hasFile('image')){
-                        $path = $request->file('image')->store('profile_images', 'public');
-                                    $validated['image'] = $path;
+       if ($path = $this->uploadImage($request)) {
+            $validated['image'] = $path;
         }
         
            $profile=profile::create($validated);
@@ -57,28 +64,21 @@ $profile    ], 200);    }
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreProfileRequest $request)
+    public function update(UpdateProfileRequest $request )
     {
-        //
-        if(!Auth::check()){
-      return response()->json(['message' => 'Unauthenticated'], 401);
-        }
+          $profile = Auth::user()->profile;
 
         $validated=$request->validated();
-        $validated['user_id']=Auth::id();
 
-         if($request->hasFile('image')){
-         $path = $request->file('image')->store('profile_images', 'public');
-         $validated['image'] = $path;
-
-            }
-        $profile = Profile::update($validated);
+        if ($path = $this->uploadImage($request)) {
+            $validated['image'] = $path;
+        }
+     
+    $profile->update($validated);
                 return response()->json([
             'message' => 'Profile update successfully',
             'data' => $profile
         ], 201);
-    
-
 
     }
 
